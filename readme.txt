@@ -2,7 +2,7 @@
 Contributors: sbrajesh, cosmiccoders
 Tags: buddypress,social
 Requires at least: 3.3/BuddyPress 1.5+
-Tested up to: 3.3.4/BuddyPress 1.5.5
+Tested up to: 3.4/BuddyPress 1.5.6
 Stable tag: 1.0
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -16,7 +16,7 @@ For more details, please have a look here
 
 1. Upload `bp-members-with-uploaded-avatars.zip` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Visist Appearance->Widgets and add the Memebsr with Uploaded Avatars widget to your sidebar
+1. Visist Appearance->Widgets and add the Memebrs with Uploaded Avatars widget to your sidebar
 
 == Frequently Asked Questions ==
 

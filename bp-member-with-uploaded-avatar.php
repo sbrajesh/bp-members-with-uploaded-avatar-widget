@@ -5,7 +5,7 @@
  * Plugin URI: http://buddydev.com
  * Author URI: http://ThinkingInWp.com
  * Version:1.0
- * Description:Show the members who have uploaded avatar
+ * Description:Show the members who have uploaded avatar on a BuddyPress Based Social Network
  */
 
 class BPMemberWithUploadedAvatarWidget extends WP_Widget{
@@ -99,9 +99,9 @@ class BPMemberWithUploadedAvatarWidget extends WP_Widget{
 /**
  * Register the widget
  */
-add_Action('widgets_init','bp_register_member_with_avata_widget');
+add_action('widgets_init','bp_register_member_with_avatar_widget');
 
-function bp_register_member_with_avata_widget(){
+function bp_register_member_with_avatar_widget(){
     register_widget('BPMemberWithUploadedAvatarWidget');
     
 }
@@ -118,7 +118,8 @@ class BPMemberWithAvatarHelper{
             add_action('xprofile_avatar_uploaded',array($this,'log_uploaded'));
             //on avatar delete
             add_action('bp_core_delete_existing_avatar',array($this,'log_deleted'));
-
+            //show entry
+            add_action('bp_members_with_uploaded_avatar_entry',array($this,'member_entry'),10,2);//remove this function from the action and use your own to customize the entry
     }
     /**
      * Get the singleton object
@@ -162,7 +163,7 @@ class BPMemberWithAvatarHelper{
         if(empty($ids))
             return false;
         //ask buddypress to return the users based on type, I did not write a query as it will need to be redoing the samething as in the called function
-        $users = BP_Core_User::get_users( $type, $max, 0,0,$ids,false,false);//I know, we are repeating here
+        $users = BP_Core_User::get_users( $type, $max, 1,0,$ids,false,false);//I know, we are repeating here
         $users=$users['users'];
         return $users;
 
@@ -174,16 +175,26 @@ class BPMemberWithAvatarHelper{
         extract($args);
         $users=self::get_users_with_avatar($max,$type);
         if(!empty($users)):?>
-       <?php foreach($users as $user):?>   
-            <a href="<?php echo bp_core_get_user_domain($user->id) ?>"><?php echo bp_core_fetch_avatar(array('type'=>$size,'width'=>$width,'height'=>$height,'item_id'=>$user->id)) ?></a>
-     
-      <?php endforeach; 
+       <?php foreach($users as $user):?> 
+        <?php    do_action('bp_members_with_uploaded_avatar_entry',$user,$args);//use this to modify the entry as you want ?>         
+                 
+        <?php endforeach; 
       else:?>
             <div class="error"><p>No members found</p></div>  
       
     <?php endif;
     echo '<div class="clear"></div>';
     }
+    
+    function member_entry($user,$args){
+        extract($args);
+        ?>
+            
+         <a href="<?php echo bp_core_get_user_domain($user->id) ?>"><?php echo bp_core_fetch_avatar(array('type'=>$size,'width'=>$width,'height'=>$height,'item_id'=>$user->id)) ?></a>
+     
+
+    <?php }
 }
 
 BPMemberWithAvatarHelper::get_instance();
+?>
