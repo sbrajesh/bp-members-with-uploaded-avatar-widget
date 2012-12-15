@@ -2,9 +2,9 @@
 /**
  * Plugin Name: BP Members With Uploaded Avatars Widget
  * Author: Brajesh Singh
- * Plugin URI: http://buddydev.com
- * Author URI: http://ThinkingInWp.com
- * Version:1.0
+ * Plugin URI: http://buddydev.com/plugins/buddypress-members-with-uploaded-avatars-widget/
+ * Author URI: http://BuddyDev.com/members/sbrajesh/
+ * Version:1.0.1
  * Description:Show the members who have uploaded avatar on a BuddyPress Based Social Network
  */
 
@@ -32,6 +32,7 @@ class BPMemberWithUploadedAvatarWidget extends WP_Widget{
         $instance=$old_instance;
         $instance['title']=esc_html($new_instance['title']);
         $instance['max']=absint($new_instance['max']);
+        $instance['avatar_option']=absint($new_instance['avatar_option']);
         $instance['type']=esc_html($new_instance['type']);
         $instance['size']=esc_html($new_instance['size']);
         $instance['height']=absint($new_instance['height']);
@@ -69,6 +70,7 @@ class BPMemberWithUploadedAvatarWidget extends WP_Widget{
                      
                      </label>
                  </p>
+                 <p><label><input type='checkbox' name="<?php echo $this->get_field_name('avatar_option');?>" id="<?php echo $this->get_field_id('avatar_option');?>" value="1" <?php echo checked(1,$avatar_option);?> />Show Members without avatars too?</label> </p>
                 <p>
                      <label for="bp-member-with-avatar-size"><?php _e('Avatar Size'); ?>
                          <select class="widefat" id="<?php echo $this->get_field_id( 'size' ); ?>" name="<?php echo $this->get_field_name( 'size' ); ?>" style="width: 30%">
@@ -158,7 +160,7 @@ class BPMemberWithAvatarHelper{
         global $wpdb;
         
         //Find all users with uploaded avatar
-        $ids=$wpdb->get_col($wpdb->prepare("SELECT user_id FROM {$wpdb->usermeta } WHERE meta_key='has_avatar'"));//we don't need to check for meta value anyway
+        $ids=$wpdb->get_col("SELECT user_id FROM {$wpdb->usermeta } WHERE meta_key='has_avatar'");//we don't need to check for meta value anyway
         
         if(empty($ids))
             return false;
@@ -173,7 +175,13 @@ class BPMemberWithAvatarHelper{
     function list_users($args){
         $args=wp_parse_args((array)$args,array('type'=>'random','max'=>5,'size'=>'full','width'=>50,'height'=>50));
         extract($args);
-        $users=self::get_users_with_avatar($max,$type);
+        if(!empty($avatar_option)){
+            $users = BP_Core_User::get_users( $type, $max);//I know, we are repeating here
+            $users=$users['users'];
+            
+        }
+        else
+            $users=self::get_users_with_avatar($max,$type);
         if(!empty($users)):?>
        <?php foreach($users as $user):?> 
         <?php    do_action('bp_members_with_uploaded_avatar_entry',$user,$args);//use this to modify the entry as you want ?>         
