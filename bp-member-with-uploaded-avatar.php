@@ -4,7 +4,7 @@
  * Author: Brajesh Singh
  * Plugin URI: http://buddydev.com/plugins/buddypress-members-with-uploaded-avatars-widget/
  * Author URI: http://BuddyDev.com/members/sbrajesh/
- * Version:1.0.1
+ * Version:1.0.2
  * Description:Show the members who have uploaded avatar on a BuddyPress Based Social Network
  */
 
@@ -165,8 +165,18 @@ class BPMemberWithAvatarHelper{
         if(empty($ids))
             return false;
         //ask buddypress to return the users based on type, I did not write a query as it will need to be redoing the samething as in the called function
-        $users = BP_Core_User::get_users( $type, $max, 1,0,$ids,false,false);//I know, we are repeating here
-        $users=$users['users'];
+        //with BP 1.7, we don't need the above query as the class is capable of meta query, will add it in next vesrion though
+        
+        if(class_exists('BP_User_Query')){
+                $qusers = new BP_User_Query(array('type'=>$type,'per_page'=>$max,'include'=>$ids,'populate_extras'=>false));
+                $users=array_values( $qusers->results );
+        }else{
+        //pre 1.7    
+            $users = BP_Core_User::get_users( $type, $max, 1,0,$ids,false,false);//I know, we are repeating here
+            $users=$users['users'];
+        }
+            
+        
         return $users;
 
     }
@@ -176,9 +186,14 @@ class BPMemberWithAvatarHelper{
         $args=wp_parse_args((array)$args,array('type'=>'random','max'=>5,'size'=>'full','width'=>50,'height'=>50));
         extract($args);
         if(!empty($avatar_option)){
-            $users = BP_Core_User::get_users( $type, $max);//I know, we are repeating here
-            $users=$users['users'];
+            if(class_exists('BP_User_Query')){
+                $qusers = new BP_User_Query(array('type'=>$type,'per_page'=>$max,'populate_extras'=>false));
+                $users=array_values( $qusers->results );
+            }else{
             
+                $users = BP_Core_User::get_users( $type, $max);//I know, we are repeating here
+                $users=$users['users'];
+            }
         }
         else
             $users=self::get_users_with_avatar($max,$type);
