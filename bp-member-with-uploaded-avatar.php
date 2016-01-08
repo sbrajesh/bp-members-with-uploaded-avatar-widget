@@ -4,7 +4,7 @@
  * Author: Brajesh Singh
  * Plugin URI: http://buddydev.com/plugins/buddypress-members-with-uploaded-avatars-widget/
  * Author URI: http://BuddyDev.com/members/sbrajesh/
- * Version:1.0.2
+ * Version:1.0.3
  * Description:Show the members who have uploaded avatar on a BuddyPress Based Social Network
  */
 
@@ -12,7 +12,7 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
     
     public function __construct() {
 		
-        parent::__construct( false, __( 'Members With Uploaded Avatars') );
+        parent::__construct( false, __( 'Members With Uploaded Avatars' ) );
 		
     }
 	
@@ -43,8 +43,8 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
         
 		$instance['title'] = esc_html( $new_instance['title'] );
 		
-        $instance['max']			= absint($new_instance['max']);
-        $instance['avatar_option']	= absint( $new_instance['avatar_option']);
+        $instance['max']			= absint( $new_instance['max'] );
+        $instance['avatar_option']	= absint( $new_instance['avatar_option'] );
         $instance['type']			= esc_html( $new_instance['type'] );
         $instance['size']			= esc_html( $new_instance['size'] );
         $instance['height']			= absint( $new_instance['height'] );
@@ -57,18 +57,18 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
     public function form( $instance ) {
 		
         $default = array(
-				'title'	=> __( 'Recent Members' ),
-				'type'	=> 'random',
-				'max'	=> 5,
-				'size'	=> 'full',
-				'width'	=> 50,
-				'height' => 50
+				'title'		=> __( 'Recent Members' ),
+				'type'		=> 'random',
+				'max'		=> 5,
+				'size'		=> 'full',
+				'width'		=> 50,
+				'height'	=> 50
 			);
 		
 		$instance = (array) $instance;//type cast to array
 		
 		$instance = wp_parse_args( $instance, $default );
-		extract($instance);
+		extract( $instance );
 		
 		?>
 
@@ -78,33 +78,33 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 			</label>
 		</p>
 		 <p>
-			<label for="bp-member-with-avatar-max"><?php _e('Maximum no. of Users to show'); ?>
+			<label for="bp-member-with-avatar-max"><?php _e( 'Maximum no. of Users to show' ); ?>
 				<input class="widefat" id="<?php echo $this->get_field_id( 'max' ); ?>" name="<?php echo $this->get_field_name( 'max' ); ?>" type="text" value="<?php echo esc_attr( $max ); ?>" style="width: 30%" />
 			</label>
 		</p>
 		<p>
-			<label for="bp-member-with-avatar-type"><?php _e('Order By'); ?>
+			<label for="bp-member-with-avatar-type"><?php _e( 'Order By' ); ?>
 				<select class="widefat" id="<?php echo $this->get_field_id( 'type' ); ?>" name="<?php echo $this->get_field_name( 'type' ); ?>" style="width: 30%">
-					<option value="random" <?php if($type=='random'):?> selected='selected'<?php endif;?> >Random</option>
-					<option value="alphabetical" <?php if($type=='alphabetical'):?> selected='selected'<?php endif;?> >Alphabetically</option>
-					<option value="active" <?php if($type=='active'):?> selected='selected'<?php endif;?> >Active</option>
-					<option value="newest" <?php if($type=='newest'):?> selected='selected'<?php endif;?> >Recently Joined</option>
-					<option value="popular" <?php if($type=='popular'):?> selected='selected'<?php endif;?> >Popularity</option>
+					<option value="random" <?php selected( $type, 'random' ) ;?>  >Random</option>
+					<option value="alphabetical" <?php selected( $type, 'alphabetical' ) ;?> >Alphabetically</option>
+					<option value="active" <?php selected( $type, 'active' ) ;?>  >Active</option>
+					<option value="newest" <?php selected( $type, 'newest' ) ;?> >Recently Joined</option>
+					<option value="popular" <?php selected( $type, 'popular' ) ;?> >Popularity</option>
 				</select>    
 
 			</label>
 		</p>
 		<p>
 			<label>
-				<input type='checkbox' name="<?php echo $this->get_field_name('avatar_option');?>" id="<?php echo $this->get_field_id('avatar_option');?>" value="1" <?php echo checked(1,$avatar_option);?> />
-				<?php _e('Show Members without avatars too?'); ?>
+				<input type='checkbox' name="<?php echo $this->get_field_name( 'avatar_option' );?>" id="<?php echo $this->get_field_id( 'avatar_option' );?>" value="1" <?php echo checked( 1, $avatar_option );?> />
+				<?php _e( 'Show Members without avatars too?' ); ?>
 			</label> 
 		</p>
 		<p>
-			<label for="bp-member-with-avatar-size"><?php _e('Avatar Size'); ?>
+			<label for="bp-member-with-avatar-size"><?php _e( 'Avatar Size' ); ?>
 				<select class="widefat" id="<?php echo $this->get_field_id( 'size' ); ?>" name="<?php echo $this->get_field_name( 'size' ); ?>" style="width: 30%">
-					<option value="full" <?php if($size=='full'):?> selected='selected'<?php endif;?> >Full</option>
-					<option value="thumb" <?php if($size=='thumb'):?> selected='selected'<?php endif;?> >Thumb</option>
+					<option value="full" <?php selected( $size, 'full' ) ;?> >Full</option>
+					<option value="thumb" <?php selected( $size, 'thumb' ) ;?> >Thumb</option>
 
 
 				</select>    
@@ -113,12 +113,12 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 		</p> 
 		<p>
                      
-			<label for="bp-member-with-avatar-height"><?php _e('Avatar height'); ?>
+			<label for="bp-member-with-avatar-height"><?php _e( 'Avatar height' ); ?>
                 <input class="widefat" id="<?php echo $this->get_field_id( 'height' ); ?>" name="<?php echo $this->get_field_name( 'height' ); ?>" type="text" value="<?php echo esc_attr( $height ); ?>" style="width: 30%" />
             </label>
         </p>
 		<p>
-			<label for="bp-member-with-avatar-width"><?php _e('Avatar Widtht'); ?>
+			<label for="bp-member-with-avatar-width"><?php _e( 'Avatar Widtht' ); ?>
 				<input class="widefat" id="<?php echo $this->get_field_id( 'width' ); ?>" name="<?php echo $this->get_field_name( 'width' ); ?>" type="text" value="<?php echo esc_attr( $width ); ?>" style="width: 30%" />
 			</label>
         </p>
@@ -161,8 +161,9 @@ class BP_Members_With_Avatar_Helper {
      */
     public static function get_instance(){
         
-        if( ! isset( self::$instance ) )
+        if ( ! isset( self::$instance ) ) {
             self::$instance = new self();
+		}
         
         return self::$instance;
     }
@@ -176,8 +177,9 @@ class BP_Members_With_Avatar_Helper {
     //on delete avatar, delete it from user meta
     public function log_deleted( $args ) {
 		
-        if( $args['object'] != 'user' )
+        if ( $args['object'] != 'user' ) {
 			return;
+		}
         //we are sure it was user avatar delete
 
         //remove the log from user meta
@@ -196,12 +198,13 @@ class BP_Members_With_Avatar_Helper {
         //Find all users with uploaded avatar
         $ids = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta } WHERE meta_key='has_avatar'" );//we don't need to check for meta value anyway
         
-        if( empty( $ids ) )
+        if ( empty( $ids ) ) {
             return false;
+		}
         //ask buddypress to return the users based on type, I did not write a query as it will need to be redoing the samething as in the called function
         //with BP 1.7, we don't need the above query as the class is capable of meta query, will add it in next vesrion though
         
-        if( class_exists( 'BP_User_Query') ) {
+        if ( class_exists( 'BP_User_Query') ) {
 			$args = array(
 					'type'				=> $type,
 					'per_page'			=> $max,
@@ -230,13 +233,20 @@ class BP_Members_With_Avatar_Helper {
     //helper to list users with avatars, will extend in future to show more details
     public function list_users( $args ) {
 		
-        $args = wp_parse_args( (array) $args, array( 'type' => 'random', 'max' => 5, 'size' => 'full', 'width' => 50, 'height' => 50 ) );
+        $args = wp_parse_args( (array) $args, 
+								array( 
+									'type'		=> 'random', 
+									'max'		=> 5, 
+									'size'		=> 'full',
+									'width'		=> 50, 
+									'height'	=> 50 
+								) );
 		
         extract( $args );
 		//$avatar_option is not empty if the admin has checked show member without avatar too
-        if( ! empty( $avatar_option ) ) {
+        if ( ! empty( $avatar_option ) ) {
 			
-            if( class_exists( 'BP_User_Query' ) ) {
+            if ( class_exists( 'BP_User_Query' ) ) {
 				
                 $qusers = new BP_User_Query( array(
 						'type'				=> $type,
@@ -245,7 +255,7 @@ class BP_Members_With_Avatar_Helper {
 					)
 				);
 				
-                $users=array_values( $qusers->results );
+               $users = array_values( $qusers->results );
 				
             } else {
             
@@ -255,19 +265,19 @@ class BP_Members_With_Avatar_Helper {
 			
         } else {
 			//it will be called when only members with uploaded avatar are included
-			$users=self::get_users_with_avatar($max,$type);
+			$users = self::get_users_with_avatar( $max, $type );
 		}	
 		
 		$users = apply_filters( 'bp_member_with_uploaded_avatar_users', $users );
 		
-        if( ! empty( $users ) ): ?>
+        if ( ! empty( $users ) ): ?>
 		
 			<?php foreach( $users as $user ):?> 
 				<?php    do_action( 'bp_members_with_uploaded_avatar_entry', $user, $args );//use this to modify the entry as you want ?>         
 
 			<?php endforeach; ?>
 		
-		<?php else:?>
+		<?php else: ?>
             
 		<div class="error"> <p> No members found! </p> </div>  
       
@@ -288,7 +298,7 @@ class BP_Members_With_Avatar_Helper {
 		   <?php echo bp_core_fetch_avatar( array( 
 					   'type'		=> $size,
 					   'width'		=> $width,
-					   'height'	=> $height,
+					   'height'		=> $height,
 					   'item_id'	=> $user->id
 				   )
 			   ) ?>
