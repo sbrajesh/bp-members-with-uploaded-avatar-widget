@@ -202,14 +202,16 @@ class BP_Members_With_Avatar_Helper {
         //with BP 1.7, we don't need the above query as the class is capable of meta query, will add it in next vesrion though
         
         if( class_exists( 'BP_User_Query') ) {
-			
-            $qusers = new BP_User_Query( array(
+			$args = array(
 					'type'				=> $type,
 					'per_page'			=> $max,
 					'include'			=> $ids,
 					'populate_extras'	=> false
-				)
-			);
+				);
+			
+			$args = apply_filters( 'bp_member_with_uploaded_avatar_query_args', $args );
+			
+            $qusers = new BP_User_Query( $args );
 			
             $users = array_values( $qusers->results );
         
@@ -231,7 +233,7 @@ class BP_Members_With_Avatar_Helper {
         $args = wp_parse_args( (array) $args, array( 'type' => 'random', 'max' => 5, 'size' => 'full', 'width' => 50, 'height' => 50 ) );
 		
         extract( $args );
-		
+		//$avatar_option is not empty if the admin has checked show member without avatar too
         if( ! empty( $avatar_option ) ) {
 			
             if( class_exists( 'BP_User_Query' ) ) {
@@ -252,9 +254,11 @@ class BP_Members_With_Avatar_Helper {
             }
 			
         } else {
-         
+			//it will be called when only members with uploaded avatar are included
 			$users=self::get_users_with_avatar($max,$type);
 		}	
+		
+		$users = apply_filters( 'bp_member_with_uploaded_avatar_users', $users );
 		
         if( ! empty( $users ) ): ?>
 		
