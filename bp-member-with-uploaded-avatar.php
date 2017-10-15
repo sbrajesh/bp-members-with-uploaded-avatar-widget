@@ -34,6 +34,10 @@ class BP_Members_With_Avatar_Helper {
 	private $path;
 
 	/**
+	 * @var array data store.
+	 */
+	private $data = array();
+	/**
 	 * Constructor
 	 */
 	private function __construct() {
@@ -218,6 +222,44 @@ class BP_Members_With_Avatar_Helper {
         </a>
 		<?php
 	}
+
+
+	/**
+	 * Save a random piece of data in global scope.
+	 *
+	 * @param string $key unique name.
+	 * @param mixed  $data data value.
+	 */
+	public function add_data( $key, $data ) {
+		$this->data[ $key ] = $data;
+	}
+
+	/**
+	 * Get teh data associated with given key.
+	 *
+	 * @param string $key unique name.
+	 *
+	 * @return mixed|null
+	 */
+	public function get_data( $key ) {
+		if ( isset( $this->data[ $key ] ) ) {
+			return $this->data[ $key ];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Do we have data associated with this key?
+	 *
+	 * @param string $key unique name.
+	 *
+	 * @return bool
+	 */
+	public function has_data( $key ) {
+		return isset( $this->data[ $key ] );
+	}
+
 }
 
 BP_Members_With_Avatar_Helper::get_instance();
