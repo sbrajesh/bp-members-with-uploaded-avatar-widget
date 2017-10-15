@@ -23,15 +23,13 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 
-		extract( $args );
-
-		echo $before_widget . $before_title . $instance['title'] . $after_title;
+		echo $args['before_widget'] . $args['before_title'] . $instance['title'] . $args['after_title'];
 
 		$helper = BP_Members_With_Avatar_Helper::get_instance();
 
 		$helper->list_users( $instance );
 
-		echo $after_widget;
+		echo $args['after_widget'];
 	}
 
 
@@ -81,6 +79,13 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 		$instance = wp_parse_args( $instance, $default );
 		extract( $instance );
 
+		$max           = absint( $instance['max'] );
+		$title         = esc_html( $instance['title'] );
+		$type          = $instance['type'];
+		$avatar_option = $instance['avatar_option'];
+		$size          = $instance['size'];
+		$width         = $instance['width'];
+		$height        = $instance['height'];
 		?>
 
 		<p>
@@ -131,7 +136,6 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 			</label>
 		</p>
 		<p>
-
 			<label for="bp-member-with-avatar-height"><?php _e( 'Avatar height' ); ?>
 				<input class="widefat" id="<?php echo $this->get_field_id( 'height' ); ?>"
 				       name="<?php echo $this->get_field_name( 'height' ); ?>" type="text"
@@ -154,10 +158,8 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 /**
  * Register the widget
  */
-add_action( 'bp_widgets_init', 'bp_register_member_with_avatar_widget' );
-
 function bp_register_member_with_avatar_widget() {
-
 	register_widget( 'BP_Members_With_Uploaded_Avatar_Widget' );
-
 }
+
+add_action( 'bp_widgets_init', 'bp_register_member_with_avatar_widget' );
