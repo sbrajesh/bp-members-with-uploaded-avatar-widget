@@ -28,7 +28,13 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 		$helper = BP_Members_With_Avatar_Helper::get_instance();
 
 		$helper->list_users( $instance );
-
+		?>
+		<style type="text/css">
+			.widget_bp_members_with_uploaded_avatar_widget .pagination {
+				display:none;
+			}
+		</style>
+		<?php
 		echo $args['after_widget'];
 	}
 
@@ -47,12 +53,13 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 
 		$instance['title'] = esc_html( $new_instance['title'] );
 
-		$instance['max']           = absint( $new_instance['max'] );
-		$instance['avatar_option'] = absint( $new_instance['avatar_option'] );
-		$instance['type']          = esc_html( $new_instance['type'] );
-		$instance['size']          = esc_html( $new_instance['size'] );
-		$instance['height']        = absint( $new_instance['height'] );
-		$instance['width']         = absint( $new_instance['width'] );
+		$instance['max']               = absint( $new_instance['max'] );
+		$instance['avatar_option']     = absint( $new_instance['avatar_option'] );
+		$instance['type']              = esc_html( $new_instance['type'] );
+		$instance['size']              = esc_html( $new_instance['size'] );
+		$instance['height']            = absint( $new_instance['height'] );
+		$instance['width']             = absint( $new_instance['width'] );
+		$instance['use_default_theme'] = absint( $new_instance['use_default_theme'] );
 
 		return $instance;
 	}
@@ -66,12 +73,13 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 	public function form( $instance ) {
 
 		$default = array(
-			'title'  => __( 'Recent Members', 'bp-members-with-uploaded-avatar-widget' ),
-			'type'   => 'random',
-			'max'    => 5,
-			'size'   => 'full',
-			'width'  => 50,
-			'height' => 50,
+			'title'             => __( 'Recent Members', 'bp-members-with-uploaded-avatar-widget' ),
+			'type'              => 'random',
+			'max'               => 5,
+			'size'              => 'full',
+			'width'             => 50,
+			'height'            => 50,
+			'use_default_theme' => 0,
 		);
 
 		$instance = (array) $instance;// type cast to array.
@@ -85,6 +93,7 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 		$size          = $instance['size'];
 		$width         = $instance['width'];
 		$height        = $instance['height'];
+		$use_default_theme = isset( $instance['use_default_theme'] ) ? $instance['use_default_theme'] : 0;
 		?>
 
 		<p>
@@ -141,6 +150,15 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 				<input class="widefat" id="<?php echo $this->get_field_id( 'width' ); ?>"
 				       name="<?php echo $this->get_field_name( 'width' ); ?>" type="text"
 				       value="<?php echo esc_attr( $width ); ?>" style="width: 30%"/>
+			</label>
+		</p>
+
+		<p>
+			<label>
+				<input type='checkbox' name="<?php echo $this->get_field_name( 'use_default_theme' ); ?>"
+				       id="<?php echo $this->get_field_id( 'use_default_theme' ); ?>"
+				       value="1" <?php echo checked( 1, $use_default_theme ); ?> />
+				<?php _e( 'Use members loop from theme for listing?', 'bp-members-with-uploaded-avatar-widget' ); ?>
 			</label>
 		</p>
 

@@ -34,6 +34,13 @@ class BP_Members_With_Avatar_Helper {
 	private $path;
 
 	/**
+	 * Temporary option for keeping widget args.
+	 *
+	 * @var array
+	 */
+	private $widget_args = null;
+
+	/**
 	 * @var array data store.
 	 */
 	private $data = array();
@@ -152,15 +159,75 @@ class BP_Members_With_Avatar_Helper {
 
 		$args = wp_parse_args( (array) $args,
 			array(
-				'type'   => 'random',
-				'max'    => 5,
-				'size'   => 'full',
-				'width'  => 50,
-				'height' => 50,
+				'type'              => 'random',
+				'max'               => 5,
+				'size'              => 'full',
+				'width'             => 50,
+				'height'            => 50,
+				'use_default_theme' => 0,
 			)
-        );
+		);
 
-		// $avatar_option is not empty if the admin has checked show member without avatar too.
+		if ( ! empty( $args['use_default_theme'] ) ) {
+			$this->load_default_theme_members_list( $args );
+		} else {
+			$this->list_legacy( $args );
+		}
+
+		echo '<div class="clear"></div>';
+	}
+
+
+	/**
+	 * Load members-loop.php from the default theme.
+	 *
+	 * @param array $args widget args.
+	 */
+	public function load_default_theme_members_list( $args ) {
+		$this->widget_args = $args;
+
+		// add filter.
+		add_filter( 'bp_after_has_members_parse_args', array( $this, 'filter_members_list' ) );
+
+		// load list.
+		bp_locate_template( array( 'members/members-loop.php' ), true );
+
+		// remove filter.
+		remove_filter( 'bp_after_has_members_parse_args', array( $this, 'filter_members_list' ) );
+
+		// reset data.
+		$this->widget_args = null;
+	}
+
+	/**
+	 * Filter members list.
+	 *
+	 * @param array $args bp_has_members args.
+	 *
+	 * @return array
+	 */
+	public function filter_members_list( $args ) {
+
+		if ( empty( $this->widget_args ) ) {
+			return $args;
+		}
+
+		$args['type']       = $this->widget_args['type'];
+		$args['per_page']   = $this->widget_args['max'];
+		$args['max']        = $this->widget_args['max'];
+		$args['meta_key']   = 'has_avatar';
+		$args['meta_value'] = 1;
+
+		return $args;
+	}
+	/**
+	 * List legacy style.
+	 *
+	 * @param array $args see args.
+	 */
+	public function list_legacy( $args ) {
+
+	    // $avatar_option is not empty if the admin has checked show member without avatar too.
 		if ( ! empty( $args['avatar_option'] ) ) {
 
 			if ( class_exists( 'BP_User_Query' ) ) {
@@ -197,9 +264,6 @@ class BP_Members_With_Avatar_Helper {
             <div class="error"><p> <?php _e( 'No members found!', 'bp-members-with-uploaded-avatar-widget' ); ?> </p></div>
 
 		<?php endif; ?>
-		<?php
-
-		echo '<div class="clear"></div>';
 	}
 
 	/**
