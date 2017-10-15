@@ -130,7 +130,6 @@ class BP_Members_With_Avatar_Helper {
 
 			$users = array_values( $qusers->results );
 
-
 		} else {
 			// pre BP 1.7
 			$users = BP_Core_User::get_users( $type, $max, 1, 0, $ids, false, false );// I know, we are repeating here.
