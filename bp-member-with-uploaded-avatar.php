@@ -8,6 +8,10 @@
  * Description:Show the members who have uploaded avatar on a BuddyPress Based Social Network
  */
 
+// Do not allow direct access over web.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Helper class for keeping record of avatar change & providing list of the users
