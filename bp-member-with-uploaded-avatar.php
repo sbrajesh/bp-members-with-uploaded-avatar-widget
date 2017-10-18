@@ -159,16 +159,15 @@ class BP_Members_With_Avatar_Helper {
 
 		$args = wp_parse_args( (array) $args,
 			array(
-				'type'              => 'random',
-				'max'               => 5,
-				'size'              => 'full',
-				'width'             => 50,
-				'height'            => 50,
-				'use_default_theme' => 0,
-                'excluded_users'=> array(),
-                'excluded_member_types'=> array(),
-                'included_member_types' => array(),
-
+				'type'                  => 'random',
+				'max'                   => 5,
+				'size'                  => 'full',
+				'width'                 => 50,
+				'height'                => 50,
+				'use_default_theme'     => 0,
+				'excluded_users'        => array(),
+				'excluded_member_types' => array(),
+				'included_member_types' => array(),
 			)
 		);
 
@@ -239,33 +238,24 @@ class BP_Members_With_Avatar_Helper {
 	 */
 	public function list_legacy( $args ) {
 
-	    // $avatar_option is not empty if the admin has checked show member without avatar too.
-		if ( ! empty( $args['avatar_option'] ) ) {
+		$query_args = array(
+			'type'                => $args['type'],
+			'per_page'            => $args['max'],
+			'populate_extras'     => false,
+			'member_type__in'     => isset( $args['included_member_types'] ) ? $args['included_member_types'] : '',
+			'member_type__not_in' => isset( $args['excluded_member_types'] ) ? $args['excluded_member_types'] : '',
+			'exclude'             => isset( $args['excluded_users'] ) ? $args['excluded_users'] : false,
+		);
 
-			if ( class_exists( 'BP_User_Query' ) ) {
-
-				$query_args = array(
-					'type'                => $args['type'],
-					'per_page'            => $args['max'],
-					'populate_extras'     => false,
-					'member_type__in'     => isset( $args['included_member_types'] ) ? $args['included_member_types'] : '',
-					'member_type__not_in' => isset( $args['excluded_member_types'] ) ? $args['excluded_member_types'] : '',
-					'exclude'             => isset( $args['excluded_users'] ) ? $args['excluded_users'] : false,
-				);
-
-				$qusers = new BP_User_Query( $query_args );
-
-				$users = array_values( $qusers->results );
-
-			} else {
-
-				$users = BP_Core_User::get_users( $args['type'], $args['max'] );
-				$users = $users['users'];
-			}
-		} else {
-			// it will be called when only members with uploaded avatar are included.
-			$users = self::get_users_with_avatar( $args['max'], $args['type'] );
+		// if the option to include member with no avatar is not ticked, let us filter more.
+		if ( empty( $args['avatar_option'] ) ) {
+			$query_args['meta_key']   = 'has_avatar';
+			$query_args['meta_value'] = 1;
 		}
+
+		$qusers = new BP_User_Query( $query_args );
+
+		$users = array_values( $qusers->results );
 
 		$users = apply_filters( 'bp_member_with_uploaded_avatar_users', $users );
 
@@ -277,19 +267,21 @@ class BP_Members_With_Avatar_Helper {
 			<?php endforeach; ?>
 
 		<?php else : ?>
-            <div class="error"><p> <?php _e( 'No members found!', 'bp-members-with-uploaded-avatar-widget' ); ?> </p></div>
+            <div class="error">
+                <p> <?php _e( 'No members found!', 'bp-members-with-uploaded-avatar-widget' ); ?> </p>
+            </div>
 
-		<?php endif; ?>
+		<?php endif;
 	}
 
-	/**
-	 * Print single user entry details.
-	 *
-	 * @param Object $user user details.
-	 * @param array  $args args.
-	 */
-	public function member_entry( $user, $args ) {
-		?>
+        /**
+        * Print single user entry details.
+        *
+        * @param Object $user user details.
+        * @param array  $args args.
+        */
+        public function member_entry( $user, $args ) {
+        ?>
         <a href="<?php echo bp_core_get_user_domain( $user->id ) ?>">
 			<?php echo bp_core_fetch_avatar( array(
 					'type'    => $args['size'],
