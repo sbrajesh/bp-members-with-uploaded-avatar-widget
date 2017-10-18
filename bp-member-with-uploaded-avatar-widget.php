@@ -60,6 +60,14 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 		$instance['height']            = absint( $new_instance['height'] );
 		$instance['width']             = absint( $new_instance['width'] );
 		$instance['use_default_theme'] = absint( $new_instance['use_default_theme'] );
+		if ( ! empty( $new_instance['excluded_users'] ) ) {
+			$instance['excluded_users'] = join( ',', wp_parse_id_list( $new_instance['excluded_users'] ) );
+		} else {
+			$instance['excluded_users'] = '';
+		}
+		$instance['excluded_member_types'] = isset( $new_instance['excluded_member_types'] ) ? $new_instance['excluded_member_types'] : array();
+		$instance['included_member_types'] = isset( $new_instance['included_member_types'] ) ? $new_instance['included_member_types'] : array();
+
 
 		return $instance;
 	}
@@ -73,13 +81,16 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 	public function form( $instance ) {
 
 		$default = array(
-			'title'             => __( 'Recent Members', 'bp-members-with-uploaded-avatar-widget' ),
-			'type'              => 'random',
-			'max'               => 5,
-			'size'              => 'full',
-			'width'             => 50,
-			'height'            => 50,
-			'use_default_theme' => 0,
+			'title'                 => __( 'Recent Members', 'bp-members-with-uploaded-avatar-widget' ),
+			'type'                  => 'random',
+			'max'                   => 5,
+			'size'                  => 'full',
+			'width'                 => 50,
+			'height'                => 50,
+			'use_default_theme'     => 0,
+			'excluded_users'        => '',
+			'excluded_member_types' => array(),
+			'included_member_types'  => array(),
 		);
 
 		$instance = (array) $instance;// type cast to array.
@@ -94,6 +105,13 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 		$width         = $instance['width'];
 		$height        = $instance['height'];
 		$use_default_theme = isset( $instance['use_default_theme'] ) ? $instance['use_default_theme'] : 0;
+		$excluded_users = isset( $instance['excluded_users'] ) ? $instance['excluded_users'] : '';
+		$excluded_member_types = isset( $instance['excluded_member_types'] ) ? $instance['excluded_member_types'] : array();
+		$included_member_types = isset( $instance['included_member_types'] ) ? $instance['included_member_types'] : array();
+
+
+		$all_member_types = bp_get_member_types( array(), 'object' );
+
 		?>
 
 		<p>
@@ -121,14 +139,52 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 				</select>
 			</label>
 		</p>
-		<p>
-			<label>
-				<input type='checkbox' name="<?php echo $this->get_field_name( 'avatar_option' ); ?>"
-				       id="<?php echo $this->get_field_id( 'avatar_option' ); ?>"
-				       value="1" <?php echo checked( 1, $avatar_option ); ?> />
-				<?php _e( 'Show Members without avatars too?', 'bp-members-with-uploaded-avatar-widget' ); ?>
-			</label>
-		</p>
+
+        <p>
+            <label for="bp-member-with-avatar-excluded"><?php _e( 'Excluded user ids(e.g 1,2,3 etc)', 'bp-members-with-uploaded-avatar-widget' ); ?>
+                <input class="widefat" id="<?php echo $this->get_field_id( 'excluded_users' ); ?>"
+                       name="<?php echo $this->get_field_name( 'excluded_users' ); ?>" type="text"
+                       value="<?php echo esc_attr( $excluded_users ); ?>" style="width:100%"/>
+            </label>
+        </p>
+
+        <?php if ( ! empty( $all_member_types ) ) : ?>
+            <p>
+                <label for="bp-member-included-member-type"><strong><?php _e( 'Include Member Types', 'bp-members-with-uploaded-avatar-widget' ); ?></strong></label>
+                <br/>
+                <?php foreach ( $all_member_types as $member_type=> $member_type_object ) : ?>
+                    <label>
+                        <input type="checkbox" value="<?php echo $member_type;?>" name="<?php echo $this->get_field_name( 'included_member_types' );?>[]" <?php checked( true, in_array( $member_type, $included_member_types ) );?> />
+                        <?php echo $member_type_object->labels['singular_name'];?>
+                    </label>
+                <?php endforeach; ?>
+                </label>
+            </p>
+
+            <p>
+                <label for="bp-member-excluded-member-type"><strong><?php _e( 'Exclude Member Types', 'bp-members-with-uploaded-avatar-widget' ); ?></strong></label>
+                <br/>
+				<?php foreach ( $all_member_types as $member_type=> $member_type_object ) : ?>
+                    <label>
+                        <input type="checkbox" value="<?php echo $member_type;?>" name="<?php echo $this->get_field_name( 'excluded_member_types' );?>[]" <?php checked( true, in_array( $member_type, $excluded_member_types ) );?> />
+						<?php echo $member_type_object->labels['singular_name'];?>
+                    </label>
+				<?php endforeach; ?>
+                </label>
+            </p>
+            <p>
+                <?php _e(' You should either use include member type or exclude member type. Use of both simultaneously is not supported.', 'bp-members-with-uploaded-avatar-widget' );?>
+            </p>
+         <?php endif; ?>
+
+        <p>
+            <label>
+                <input type='checkbox' name="<?php echo $this->get_field_name( 'avatar_option' ); ?>"
+                       id="<?php echo $this->get_field_id( 'avatar_option' ); ?>"
+                       value="1" <?php echo checked( 1, $avatar_option ); ?> />
+				<strong><?php _e( 'Show Members without avatars too?', 'bp-members-with-uploaded-avatar-widget' ); ?></strong>
+            </label>
+        </p>
 		<p>
 			<label for="bp-member-with-avatar-size"><?php _e( 'Avatar Size', 'bp-members-with-uploaded-avatar-widget' ); ?>
 				<select class="widefat" id="<?php echo $this->get_field_id( 'size' ); ?>"
@@ -138,6 +194,7 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 				</select>
 			</label>
 		</p>
+
 		<p>
 			<label for="bp-member-with-avatar-height"><?php _e( 'Avatar height', 'bp-members-with-uploaded-avatar-widget' ); ?>
 				<input class="widefat" id="<?php echo $this->get_field_id( 'height' ); ?>"

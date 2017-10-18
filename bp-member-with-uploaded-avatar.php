@@ -165,6 +165,10 @@ class BP_Members_With_Avatar_Helper {
 				'width'             => 50,
 				'height'            => 50,
 				'use_default_theme' => 0,
+                'excluded_users'=> array(),
+                'excluded_member_types'=> array(),
+                'included_member_types' => array(),
+
 			)
 		);
 
@@ -215,6 +219,11 @@ class BP_Members_With_Avatar_Helper {
 		$args['type']       = $this->widget_args['type'];
 		$args['per_page']   = $this->widget_args['max'];
 		$args['max']        = $this->widget_args['max'];
+
+		$args['member_type__in']     = isset( $this->widget_args['included_member_types'] ) ? $this->widget_args['included_member_types'] : '';
+		$args['member_type__not_in'] = isset( $this->widget_args['excluded_member_types'] ) ? $this->widget_args['excluded_member_types'] : '';
+		$args['exclude']             = isset( $this->widget_args['excluded_users'] ) ? $this->widget_args['excluded_users'] : false;
+
 		if ( empty( $this->widget_args['avatar_option'] ) ) {
 
 			$args['meta_key']   = 'has_avatar';
@@ -235,12 +244,16 @@ class BP_Members_With_Avatar_Helper {
 
 			if ( class_exists( 'BP_User_Query' ) ) {
 
-				$qusers = new BP_User_Query( array(
-						'type'            => $args['type'],
-						'per_page'        => $args['max'],
-						'populate_extras' => false,
-					)
+				$query_args = array(
+					'type'                => $args['type'],
+					'per_page'            => $args['max'],
+					'populate_extras'     => false,
+					'member_type__in'     => isset( $args['included_member_types'] ) ? $args['included_member_types'] : '',
+					'member_type__not_in' => isset( $args['excluded_member_types'] ) ? $args['excluded_member_types'] : '',
+					'exclude'             => isset( $args['excluded_users'] ) ? $args['excluded_users'] : false,
 				);
+
+				$qusers = new BP_User_Query( $query_args );
 
 				$users = array_values( $qusers->results );
 
