@@ -87,9 +87,11 @@ class BP_Members_With_Avatar_Helper {
 
 	/**
 	 * Record new avatar upload in meta.
+     *
+     * @param int $user_id user id.
 	 */
-	public function log_uploaded() {
-		bp_update_user_meta( bp_loggedin_user_id(), 'has_avatar', 1 );
+	public function log_uploaded( $user_id ) {
+		bp_update_user_meta( $user_id, 'has_avatar', 1 );
 	}
 
 	/**
@@ -102,9 +104,19 @@ class BP_Members_With_Avatar_Helper {
 		if ( $args['object'] != 'user' ) {
 			return;
 		}
+		$user_id = empty( $args['item_id'] ) ? 0 : absint( $args['item_id'] );
+
+		if ( ! $user_id ) {
+			if ( bp_is_user() && ( bp_is_my_profile() || is_super_admin() ) ) {
+				$user_id = bp_displayed_user_id();
+			} else {
+				$user_id = bp_loggedin_user_id();
+			}
+		}
+
 		// we are sure it was user avatar delete
 		// remove the log from user meta.
-		bp_delete_user_meta( bp_loggedin_user_id(), 'has_avatar' );
+		bp_delete_user_meta( $user_id, 'has_avatar' );
 	}
 
 	/**
