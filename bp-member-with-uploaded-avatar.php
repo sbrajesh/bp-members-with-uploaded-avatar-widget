@@ -4,7 +4,7 @@
  * Author: Brajesh Singh
  * Plugin URI: http://buddydev.com/plugins/buddypress-members-with-uploaded-avatars-widget/
  * Author URI: http://BuddyDev.com/members/sbrajesh/
- * Version:1.0.5
+ * Version:1.0.6
  * Description:Show the members who have uploaded avatar on a BuddyPress Based Social Network
  */
 
