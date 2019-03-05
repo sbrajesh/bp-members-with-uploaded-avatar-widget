@@ -254,9 +254,9 @@ class BP_Members_With_Avatar_Helper {
 			'type'                => $args['type'],
 			'per_page'            => $args['max'],
 			'populate_extras'     => false,
-			'member_type__in'     => isset( $args['included_member_types'] ) ? $args['included_member_types'] : '',
-			'member_type__not_in' => isset( $args['excluded_member_types'] ) ? $args['excluded_member_types'] : '',
-			'exclude'             => isset( $args['excluded_users'] ) ? $args['excluded_users'] : false,
+			'member_type__in'     => ! empty( $args['included_member_types'] ) ? $args['included_member_types'] : '',
+			'member_type__not_in' => ! empty( $args['excluded_member_types'] ) ? $args['excluded_member_types'] : '',
+			'exclude'             => ! empty( $args['excluded_users'] ) ? $args['excluded_users'] : false,
 		);
 
 		// if the option to include member with no avatar is not ticked, let us filter more.
