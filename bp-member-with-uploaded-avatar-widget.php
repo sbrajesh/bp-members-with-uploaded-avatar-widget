@@ -1,8 +1,7 @@
 <?php
 // Do not allow direct access over web.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
-}
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Avatar Widget.
  */
