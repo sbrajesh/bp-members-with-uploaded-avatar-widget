@@ -4,7 +4,7 @@
  * Author: Brajesh Singh
  * Plugin URI: http://buddydev.com/plugins/buddypress-members-with-uploaded-avatars-widget/
  * Author URI: http://BuddyDev.com/members/sbrajesh/
- * Version:1.0.6
+ * Version:1.0.7
  * Description:Show the members who have uploaded avatar on a BuddyPress Based Social Network
  */
 
@@ -41,27 +41,28 @@ class BP_Members_With_Avatar_Helper {
 	private $widget_args = null;
 
 	/**
-	 * @var array data store.
+	 * Data store
+	 *
+	 * @var array
 	 */
 	private $data = array();
+
 	/**
 	 * Constructor
 	 */
 	private function __construct() {
 
-	    $this->path = plugin_dir_path( __FILE__ );
+		$this->path = plugin_dir_path( __FILE__ );
 
-	    add_action( 'bp_loaded', array( $this, 'load' ) );
+		add_action( 'bp_loaded', array( $this, 'load' ) );
 		// record on new avatar upload.
 		add_action( 'xprofile_avatar_uploaded', array( $this, 'log_uploaded' ) );
 		// on avatar delete.
 		add_action( 'bp_core_delete_existing_avatar', array( $this, 'log_deleted' ) );
 
 		// show entry.
-		add_action( 'bp_members_with_uploaded_avatar_entry', array(
-			$this,
-			'member_entry',
-		), 10, 2 );// remove this function from the action and use your own to customize the entry.
+		// remove this function from the action and use your own to customize the entry.
+		add_action( 'bp_members_with_uploaded_avatar_entry', array( $this, 'member_entry' ), 10, 2 );
 	}
 
 	/**
@@ -79,7 +80,7 @@ class BP_Members_With_Avatar_Helper {
 	}
 
 	/**
-	 * Load files.
+	 * Loads files.
 	 */
 	public function load() {
 		require_once $this->path . 'bp-member-with-uploaded-avatar-widget.php';
@@ -87,8 +88,8 @@ class BP_Members_With_Avatar_Helper {
 
 	/**
 	 * Record new avatar upload in meta.
-     *
-     * @param int $user_id user id.
+	 *
+	 * @param int $user_id user id.
 	 */
 	public function log_uploaded( $user_id ) {
 		bp_update_user_meta( $user_id, 'has_avatar', 1 );
@@ -101,9 +102,10 @@ class BP_Members_With_Avatar_Helper {
 	 */
 	public function log_deleted( $args ) {
 
-		if ( $args['object'] != 'user' ) {
+		if ( empty( $args['object'] ) || 'user' !== $args['object'] ) {
 			return;
 		}
+
 		$user_id = empty( $args['item_id'] ) ? 0 : absint( $args['item_id'] );
 
 		if ( ! $user_id ) {
@@ -120,7 +122,7 @@ class BP_Members_With_Avatar_Helper {
 	}
 
 	/**
-	 * Get users who have avatar uploaded.
+	 * Retrieves users who have avatar uploaded.
 	 *
 	 * @param int    $max how many users need to be fetched.
 	 * @param string $type user listing type.
@@ -130,11 +132,11 @@ class BP_Members_With_Avatar_Helper {
 	public function get_users_with_avatar( $max, $type = 'random' ) {
 		global $wpdb;
 
-		// Find all users with uploaded avatar.
-		$ids = $wpdb->get_col( "SELECT user_id FROM {$wpdb->usermeta } WHERE meta_key='has_avatar'" );//we don't need to check for meta value anyway
+		// Finds all users with uploaded avatar.
+		$ids = $wpdb->get_col(  $wpdb->prepare( "SELECT user_id FROM {$wpdb->usermeta } WHERE meta_key=%s", 'has_avatar' ) );//we don't need to check for meta value anyway
 
 		if ( empty( $ids ) ) {
-			return false;
+			return array();
 		}
 
 		// ask buddypress to return the users based on type, I did not write a query as it will need to be redoing the same thing as in the called function
@@ -154,22 +156,24 @@ class BP_Members_With_Avatar_Helper {
 			$users = array_values( $qusers->results );
 
 		} else {
-			// pre BP 1.7
+			// pre BP 1.7.
 			$users = BP_Core_User::get_users( $type, $max, 1, 0, $ids, false, false );// I know, we are repeating here.
 			$users = $users['users'];
 		}
+
 		return $users;
 
 	}
 
 	/**
-	 * Print user's list.
+	 * Prints user's list.
 	 *
 	 * @param array $args see args below.
 	 */
 	public function list_users( $args ) {
 
-		$args = wp_parse_args( (array) $args,
+		$args = wp_parse_args(
+			(array) $args,
 			array(
 				'type'                  => 'random',
 				'max'                   => 5,
@@ -194,7 +198,7 @@ class BP_Members_With_Avatar_Helper {
 
 
 	/**
-	 * Load members-loop.php from the default theme.
+	 * Loads members-loop.php from the default theme.
 	 *
 	 * @param array $args widget args.
 	 */
@@ -215,7 +219,7 @@ class BP_Members_With_Avatar_Helper {
 	}
 
 	/**
-	 * Filter members list.
+	 * Filters members list.
 	 *
 	 * @param array $args bp_has_members args.
 	 *
@@ -227,9 +231,9 @@ class BP_Members_With_Avatar_Helper {
 			return $args;
 		}
 
-		$args['type']       = $this->widget_args['type'];
-		$args['per_page']   = $this->widget_args['max'];
-		$args['max']        = $this->widget_args['max'];
+		$args['type']     = $this->widget_args['type'];
+		$args['per_page'] = $this->widget_args['max'];
+		$args['max']      = $this->widget_args['max'];
 
 		$args['member_type__in']     = isset( $this->widget_args['included_member_types'] ) ? $this->widget_args['included_member_types'] : '';
 		$args['member_type__not_in'] = isset( $this->widget_args['excluded_member_types'] ) ? $this->widget_args['excluded_member_types'] : '';
@@ -243,8 +247,9 @@ class BP_Members_With_Avatar_Helper {
 
 		return $args;
 	}
+
 	/**
-	 * List legacy style.
+	 * Lists legacy style entries.
 	 *
 	 * @param array $args see args.
 	 */
@@ -286,30 +291,30 @@ class BP_Members_With_Avatar_Helper {
 		<?php endif;
 	}
 
-        /**
-        * Print single user entry details.
-        *
-        * @param Object $user user details.
-        * @param array  $args args.
-        */
-        public function member_entry( $user, $args ) {
-        ?>
-        <a href="<?php echo bp_core_get_user_domain( $user->id ) ?>">
-			<?php echo bp_core_fetch_avatar( array(
-					'type'    => $args['size'],
-					'width'   => $args['width'],
-					'height'  => $args['height'],
-					'item_id' => $user->id,
-				)
-			);
-			?>
+	/**
+	 * Prints single user entry details.
+	 *
+	 * @param Object $user user details.
+	 * @param array  $args args.
+	 */
+	public function member_entry( $user, $args ) {
+		?>
+        <a href="<?php echo esc_url( bp_core_get_user_domain( $user->id ) ) ?>">
+	        <?php echo bp_core_fetch_avatar(
+		        array(
+			        'type'    => $args['size'],
+			        'width'   => $args['width'],
+			        'height'  => $args['height'],
+			        'item_id' => $user->id,
+		        )
+	        );
+	        ?>
         </a>
 		<?php
 	}
 
-
 	/**
-	 * Save a random piece of data in global scope.
+	 * Saves a random piece of data in global scope.
 	 *
 	 * @param string $key unique name.
 	 * @param mixed  $data data value.
@@ -319,7 +324,7 @@ class BP_Members_With_Avatar_Helper {
 	}
 
 	/**
-	 * Get teh data associated with given key.
+	 * Retrieves the data associated with given key.
 	 *
 	 * @param string $key unique name.
 	 *
@@ -334,9 +339,9 @@ class BP_Members_With_Avatar_Helper {
 	}
 
 	/**
-	 * Do we have data associated with this key?
+	 * Checks if we have data associated with this key?
 	 *
-	 * @param string $key unique name.
+	 * @param string $key key name.
 	 *
 	 * @return bool
 	 */

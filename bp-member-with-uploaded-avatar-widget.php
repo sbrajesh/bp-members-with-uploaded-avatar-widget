@@ -16,7 +16,7 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Output the content/list members here
+	 * Outputs the content/list members here
 	 *
 	 * @param array $args widget args.
 	 * @param array $instance Instance of the widget.
@@ -40,7 +40,7 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 
 
 	/**
-	 * Update widget settings.
+	 * Updates widget settings.
 	 *
 	 * @param array $new_instance new instance.
 	 * @param array $old_instance old instance.
@@ -53,13 +53,13 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 
 		$instance['title'] = esc_html( $new_instance['title'] );
 
-		$instance['max']               = absint( $new_instance['max'] );
-		$instance['avatar_option']     = absint( $new_instance['avatar_option'] );
+		$instance['max']               = isset( $new_instance['max'] ) ? absint( $new_instance['max'] ) : 0;
+		$instance['avatar_option']     = isset( $new_instance['avatar_option'] ) ? absint( $new_instance['avatar_option'] ) : 0;
 		$instance['type']              = esc_html( $new_instance['type'] );
 		$instance['size']              = esc_html( $new_instance['size'] );
 		$instance['height']            = absint( $new_instance['height'] );
 		$instance['width']             = absint( $new_instance['width'] );
-		$instance['use_default_theme'] = absint( $new_instance['use_default_theme'] );
+		$instance['use_default_theme'] = isset( $new_instance['use_default_theme'] ) ? absint( $new_instance['use_default_theme'] ) : 0;
 		if ( ! empty( $new_instance['excluded_users'] ) ) {
 			$instance['excluded_users'] = join( ',', wp_parse_id_list( $new_instance['excluded_users'] ) );
 		} else {
@@ -68,13 +68,11 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 		$instance['excluded_member_types'] = isset( $new_instance['excluded_member_types'] ) ? $new_instance['excluded_member_types'] : array();
 		$instance['included_member_types'] = isset( $new_instance['included_member_types'] ) ? $new_instance['included_member_types'] : array();
 
-
 		return $instance;
 	}
 
-
 	/**
-	 * Render form.
+	 * Renders form.
 	 *
 	 * @param object $instance current instance.
 	 */
@@ -90,25 +88,25 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
 			'use_default_theme'     => 0,
 			'excluded_users'        => '',
 			'excluded_member_types' => array(),
-			'included_member_types'  => array(),
+			'included_member_types' => array(),
 		);
 
 		$instance = (array) $instance;// type cast to array.
 
 		$instance = wp_parse_args( $instance, $default );
 
-		$max           = absint( $instance['max'] );
-		$title         = esc_html( $instance['title'] );
-		$type          = $instance['type'];
-		$avatar_option = isset( $instance['avatar_option'] ) ? $instance['avatar_option'] : 0;
-		$size          = $instance['size'];
-		$width         = $instance['width'];
-		$height        = $instance['height'];
+		$max               = absint( $instance['max'] );
+		$title             = esc_html( $instance['title'] );
+		$type              = $instance['type'];
+		$avatar_option     = isset( $instance['avatar_option'] ) ? $instance['avatar_option'] : 0;
+		$size              = $instance['size'];
+		$width             = $instance['width'];
+		$height            = $instance['height'];
 		$use_default_theme = isset( $instance['use_default_theme'] ) ? $instance['use_default_theme'] : 0;
-		$excluded_users = isset( $instance['excluded_users'] ) ? $instance['excluded_users'] : '';
+		$excluded_users    = isset( $instance['excluded_users'] ) ? $instance['excluded_users'] : '';
+
 		$excluded_member_types = isset( $instance['excluded_member_types'] ) ? $instance['excluded_member_types'] : array();
 		$included_member_types = isset( $instance['included_member_types'] ) ? $instance['included_member_types'] : array();
-
 
 		$all_member_types = bp_get_member_types( array(), 'object' );
 
@@ -154,7 +152,7 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
                 <br/>
                 <?php foreach ( $all_member_types as $member_type=> $member_type_object ) : ?>
                     <label>
-                        <input type="checkbox" value="<?php echo $member_type;?>" name="<?php echo $this->get_field_name( 'included_member_types' );?>[]" <?php checked( true, in_array( $member_type, $included_member_types ) );?> />
+                        <input type="checkbox" value="<?php echo esc_attr( $member_type );?>" name="<?php echo $this->get_field_name( 'included_member_types' );?>[]" <?php checked( true, in_array( $member_type, $included_member_types ) );?> />
                         <?php echo $member_type_object->labels['singular_name'];?>
                     </label>
                 <?php endforeach; ?>
@@ -173,7 +171,7 @@ class BP_Members_With_Uploaded_Avatar_Widget extends WP_Widget {
                 </label>
             </p>
             <p>
-                <?php _e(' You should either use include member type or exclude member type. Use of both simultaneously is not supported.', 'bp-members-with-uploaded-avatar-widget' );?>
+                <?php _e('You should either use include member type or exclude member type. Use of both simultaneously is not supported.', 'bp-members-with-uploaded-avatar-widget' );?>
             </p>
          <?php endif; ?>
 
